@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>App de Tarefas</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #343a40;
+            color: #fff;
+        }
+
+        footer {
+            background-color: #343a40;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        #taskList .list-group-item {
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>App de Tarefas</h1>
+        <form id="taskForm">
+            <div class="form-group">
+                <label for="taskName">Nome da Tarefa</label>
+                <input type="text" class="form-control" id="taskName" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Adicionar Tarefa</button>
+        </form>
+        <hr>
+        <ul id="taskList" class="list-group">
+            <!-- Tarefas serão adicionadas aqui -->
+        </ul>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Alberto Zimbuculo. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Carregar tarefas do Local Storage
+        const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+        // Função para renderizar as tarefas na tela
+        function renderTasks() {
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = '';
+
+            tasks.forEach((task, index) => {
+                const listItem = document.createElement('li');
+                listItem.className = 'list-group-item';
+                listItem.innerHTML = `
+                    <span>${task}</span>
+                    <div class="float-right">
+                        <button class="btn btn-sm btn-danger deleteTask" data-index="${index}">Excluir</button>
+                        <button class="btn btn-sm btn-primary editTask" data-index="${index}">Editar</button>
+                    </div>
+                `;
+                taskList.appendChild(listItem);
+            });
+        }
+
+        // Adicionar nova tarefa
+        const taskForm = document.getElementById('taskForm');
+        taskForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const taskNameInput = document.getElementById('taskName');
+            const taskName = taskNameInput.value.trim();
+
+            if (taskName) {
+                tasks.push(taskName);
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                taskNameInput.value = '';
+                renderTasks();
+            }
+        });
+
+        // Excluir tarefa
+        const taskList = document.getElementById('taskList');
+        taskList.addEventListener('click', function(e) {
+            if (e.target.classList.contains('deleteTask')) {
+                const index = parseInt(e.target.dataset.index);
+                tasks.splice(index, 1);
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                renderTasks();
+            }
+        });
+
+        // Editar tarefa
+        taskList.addEventListener('click', function(e) {
+            if (e.target.classList.contains('editTask')) {
+                const index = parseInt(e.target.dataset.index);
+                const taskName = tasks[index];
+                const newTaskName = prompt('Editar Tarefa', taskName);
+
+                if (newTaskName && newTaskName.trim()) {
+                    tasks[index] = newTaskName.trim();
+                    localStorage.setItem('tasks', JSON.stringify(tasks));
+                    renderTasks();
+                }
+            }
+        });
+
+        // Renderizar tarefas iniciais
+        renderTasks();
+    </script>
+</body>
+</html>
